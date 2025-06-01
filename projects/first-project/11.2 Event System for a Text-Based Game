@@ -1,0 +1,68 @@
+/* 
+    File: main.cpp 
+    Description: 11.2: Event System for a Text-Based Game
+    Author: Nataly Ashlee Toribio
+    Email: NatalyT1016@student.vvc.edu
+    Course#: cis202
+    Section#: <30002>
+    Date: 6/1/2025
+*/
+#include <iostream>
+#include <map>
+#include <vector>
+#include <functional>
+
+// Type alias for event handler map
+using EventMap = std::map<std::string, std::vector<std::function<void()>>>;
+
+// Trigger function
+void trigger(EventMap& events, const std::string& eventName) {
+    std::cout << "[Triggering Event: " << eventName << "]\n";
+    auto it = events.find(eventName);
+    if (it != events.end()) {
+        for (auto& handler : it->second) {
+            handler();  // Call each registered lambda
+        }
+    }
+}
+
+int main() {
+    EventMap eventHandlers;
+
+    // Game state variable for Challenge 2
+    int playerXP = 10;
+
+    // Challenge 1: Simple event
+    eventHandlers["onMonsterDefeated"].push_back([]() {
+        std::cout << "Monster defeated! +10 XP!\n";
+    });
+
+    // Challenge 2: Event with captured variable (by reference)
+    eventHandlers["onMonsterDefeated"].push_back([&]() {
+        playerXP += 10;
+        std::cout << "Updated XP: " << playerXP << "\n";
+    });
+
+    // Trigger the event
+    trigger(eventHandlers, "onMonsterDefeated");
+
+    std::cout << "\n";
+
+    // Challenge 3: Register multiple distinct events
+    eventHandlers["onPlayerHealed"].push_back([]() {
+        std::cout << "You drink a potion and recover 20 HP.\n";
+    });
+
+    eventHandlers["onTreasureFound"].push_back([]() {
+        std::cout << "You found 50 gold coins in a chest!\n";
+    });
+
+    // Trigger each new event
+    trigger(eventHandlers, "onPlayerHealed");
+    std::cout << "\n";
+    trigger(eventHandlers, "onTreasureFound");
+
+    std::cout << "\n[Final XP in main(): " << playerXP << "]\n";
+
+    return 0;
+}
